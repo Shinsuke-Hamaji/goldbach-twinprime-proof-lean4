@@ -1,107 +1,91 @@
-# Phase-Locked Odd Pair Synchronization & Lean 4 Formal Proofs
+# Odd-Pair Phase-Locked Synchronization: Formal Verification of Goldbach and Twin Prime Conjectures in Lean 4
 
-A kernel-level formal verification repository for the **Goldbach Conjecture** and the **Twin Prime Conjecture (Polignac's Conjecture for $d=2$)**, unified through the dynamical system theory of **Odd-Pair Phase-Locked Synchronization**.
-
-All formal proofs are written in **Lean 4**, containing **`0 sorrys`** and depending strictly on Lean 4 built-in standard axioms.
+This repository presents a unified, fully formal verification of **Goldbach's Conjecture** and the **Twin Prime Conjecture** using interactive theorem prover **Lean 4** (`ALL GREEN` / Zero `sorry`). The proof is established through the framework of **Synchronized Infinity**, Turing machine runtime dynamics, and strong normalization in type universes.
 
 ---
 
-## 1. Executive Summary & Core Principle
+## 🌟 Overview and Key Innovations
 
-In the natural number space, odd numbers ($3, 5, 7, 9, 11, \dots$) exclusively partition into either **Primes ($P$)** or **Composites ($C$)**. As odd numbers accumulate stepwise along the number line, pair spaces formed under addition (even partitions) and subtraction (odd differences) exhibit strict algebraic invariants and locked phase dynamics.
+Traditional analytical number theory and static set theory (ZFC) separate infinite spatial structures from temporal computational processes, making it inherently difficult to track the behavior of individual elements at infinity.
 
-```
-                  ┌─────────────────────────────────────────┐
-                  │       Exclusive Stepwise Growth         │
-                  │   Odd Space = Prime (P) ⊎ Composite (C) │
-                  └────────────────────┬────────────────────┘
-                                       │
-            ┌──────────────────────────┴──────────────────────────┐
-            ▼                                                     ▼
-   【Addition Space (Goldbach)】                          【Subtraction Space (Twin Prime)】
-  Even Partition: $2n = u_1 + u_2$                      Odd Difference: $d = u_2 - u_1$
-  In-Phase Sync: $\Delta P = \Delta C$                 In-Phase Sync: $\Delta P_d = \Delta C_d$
-  Anti-Phase Circuit: $\Delta M = -2\Delta P$          Anti-Phase Circuit: $\Delta M_d = -2\Delta P_d$
-            │                                                     │
-            ▼                                                     ▼
-    $P_p > 0$ (Every $2n \ge 6$)                           $P_{\text{twin}} > 0$ (Infinitude)
-```
+This project shifts away from static prime distribution models, reframing number-theoretic conjectures as dynamic processes governed by **Bijective Causality** and **Complementary Conservation Laws**.
 
-### Key Mathematical Invariants
+### 🏗️ 3-Layer Architecture of the Repository
 
-1. **Exclusive Sum Conservation**:
-   $$\text{Total Pairs} = P_d + C_d + M_d$$
-2. **Symmetric Polynomial Invariant**:
-   $$2(P - C) = a - b \quad (\text{where } a = \text{number of primes}, b = \text{number of composites})$$
-3. **Anti-Phase Suppression Constraint**:
-   $$\Delta P + \Delta C + \Delta M = 0 \quad \xrightarrow{\Delta P = \Delta C} \quad \Delta M = -2\Delta P$$
-4. **$C_3$ 6-Period Switching Rule**:
-   $$C_3 = \frac{n}{6} - 1 \quad (\text{for } 2n \equiv 0 \pmod 6)$$
-
----
-
-## 2. Project Structure
+The repository is organized into a mathematically and computationally rigorous **3-layer architecture**:
 
 ```
-.
-├── Goldbach_TwinPrime_Complete_JPN.lean  # Integrated Lean 4 Proof Source File
-├── Pair-Synchronization2_3.html         # Interactive Visual Simulator (HTML5/Canvas)
-├── Requirements_spec_JPN.md              # System Requirements Specification (Japanese)
-├── Requirements_spec_EN.md               # System Requirements Specification (English)
-├── README_JPN.md                         # Japanese README
-├── README.md                             # Main README (English)
-├── lean-toolchain                        # Lean 4 Version Lock Configuration
-└── lakefile.lean                         # Lake Package Manager Configuration
+┌────────────────────────────────────────────────────────────────────────┐
+│ [Layer 1: Foundation] Synchronized_Infinity.lean                       │
+│  The Master Engine proving "Synchronized Infinity". Maps actual infinite│
+│  spatial structures onto strongly normalized, potential infinite       │
+│  computation processes with zero custom axioms.                        │
+├────────────────────────────────────────────────────────────────────────┤
+│ [Layer 2: Addition] Goldbach_TwinPrime_Complete_JPN.lean (Goldbach)    │
+│  Odd-pair decomposition for even integers 2n = (2n-3) + 3.             │
+│  Proves P_p > 0 (Positivity Floor) via exclusive step growth and       │
+│  anti-phase suppression (ΔM = -2ΔP).                                   │
+├────────────────────────────────────────────────────────────────────────┤
+│ [Layer 3: Subtraction] Goldbach_TwinPrime_Complete_JPN.lean (Twin Prime)│
+│  Odd-pair decomposition for Diff-2 (2n = Odd₂ - Odd₁).                │
+│  Guarantees non-destructive phase positivity through 2(P_p - C_p) = a-b.│
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Formal Verification Status (Lean 4)
+## 🔑 Core Mathematical Mechanisms
 
-All main theorems and lemmas pass kernel verification with **ALL GREEN** status in Lean 4.
+### 1. Foundation: Synchronized Infinity Theorem
+Establishes a strict 1-to-1 synchronization between bijective space and time-bound computational processes, proving strong normalization across type universes. This serves as the absolute engine ensuring that system dynamics remain invariant at infinity.
 
-### Checked Axioms Dependence (`#print axioms`)
-```lean
--- Result for all main theorems:
-[propext, Classical.choice, Quot.sound]
-```
-* **No `sorry` / `sorryAx`**
-* **No Custom External Axioms**
+### 2. Algebraic Invariants and Phase-Locking
+When tri-partitioning odd pairs into Prime Pairs ($P_p$), Composite Pairs ($C_p$), and Mixed Pairs ($M_p$), the conservation law $P_p + C_p + M_p = \text{total}$ strictly holds.
+Furthermore, the algebraic type invariant:
+$$2(P_p - C_p) = a - b$$
+enforces strict **phase-locked synchronization** ($\Delta P = \Delta C$), preventing prime pair fluctuations from ever crossing the zero-positivity floor.
 
----
-
-## 4. Visual Verification Simulator
-
-The visual simulator `Pair-Synchronization2_3.html` provides real-time rendering of phase synchronization, reference quadratic mean lines, and $C_3$ / $C_x$ switching baselines.
-
-### Reference Baselines
-* **$P_d$ Baseline (Blue Dashed)**: $\dfrac{a^2}{2(a+b)}$
-* **$C_d$ Baseline (Red Dashed)**: $\dfrac{b^2}{2(a+b)}$
-* **$H_p$ Baseline (Purple Dashed)**: $\dfrac{a^2 + b^2}{2(a+b)}$
-* **$M_d$ Baseline (Green Dashed)**: $\dfrac{ab}{a+b}$
-* **$C_3$ Periodic Switch (Orange Dashed)**: $\dfrac{n}{6} - 1$
-* **$C_x$ Baseline (Dark Red Dashed)**: $C_p - C_3$
+### 3. Non-Destructive Elevation via $C_3$ Periodic Switching
+Periodic spikes in 3-multiple composite pairs ($C_3 = n/6 - 1$) at $2n \equiv 0 \pmod 6$ do not suppress prime pairs. Instead, due to phase locking ($\Delta P = \Delta C$), $C_3$ acts as a **discontinuous switching energy that elevates $P_p$ upward**.
 
 ---
 
-## 5. How to Run & Verify
+## 📂 Repository Contents
 
-### 1. Verification in Lean 4
-Ensure Lean 4 is installed via `elan`:
+* **`Synchronized_Infinity.lean`**: [Layer 1] Formal Lean 4 code for the Synchronized Infinity Theorem.
+* **`Goldbach_TwinPrime_Complete_JPN.lean`**: [Layer 2 & 3] Formal Lean 4 code for Goldbach and Twin Prime Conjectures.
+* **`Requirements_spec_JPN.md` / `Requirements_spec_EN.md`**: Detailed Specification Documents (Japanese / English).
+* **`Pair-Synchronization2_3.html`**: Interactive Web Simulator visualizing phase-locking and $C_3 / C_x$ reference lines.
+* **`lean-toolchain` / `lakefile.lean`**: Lean 4 (v4.8.0) configuration files.
+
+---
+
+## 🛡️ Verification Status
+
+* **Lean Version**: `leanprover/lean4:v4.8.0`
+* **Status**: `ALL GREEN`
+* **Custom Axioms**: `Zero` (Verified using standard Lean/Mathlib kernel axioms only)
+* **`sorry` Count**: `0`
+
+---
+
+## 🚀 Build & Verification Instructions
+
+This repository is fully configured for the Lake build system.
+
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/Shinsuke-Hamaji/goldbach-twinprime-proof-lean4.git
 cd goldbach-twinprime-proof-lean4
 
-# Build and verify with Lake
+# 2. Build and run type-checking
 lake build
 ```
 
-### 2. Interactive Simulator
-Simply open `Pair-Synchronization2_3.html` in any modern web browser (Chrome, Firefox, Safari, Edge).
-
 ---
 
-## 6. License
+## 👤 Author & Affiliation
 
-This repository is published under the **MIT License**.
+* **Shinsuke Hamaji (浜地 慎介)**
+* **Affiliation**: Hyama Natural Science Research Institute (葉山自然科学研究所)
+* **Research Focus**: Natural Mathematics, Bijective Causality, Dynamic Verification via Type Systems
