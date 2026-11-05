@@ -123,7 +123,7 @@ theorem goldbach_full_positivity
   (comp : RefinedOddSpaceComponents) 
   (P_avg : ℤ) 
   (_h_p_avg_pos : P_avg > 0) 
-  (h_bound : (comp.P : ℤ) - P_avg > - P_avg) : 
+  (_h_bound : (comp.P : ℤ) - P_avg > - P_avg) : 
   comp.P > 0 := by
   have h_p_int : (comp.P : ℤ) > 0 := by linarith
   exact_mod_cast h_p_int
