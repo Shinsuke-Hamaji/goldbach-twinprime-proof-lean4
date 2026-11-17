@@ -208,7 +208,7 @@ theorem goldbach_from_oppermann_sync
 -- 5. MathDB Problem 316061 Alignment (Standard Statement Format)
 -- ============================================================
 
-/-- MathDB Standard Binary Goldbach Conjecture Statement (Problem 316061)[cite: 3] -/
+/-- MathDB Standard Binary Goldbach Conjecture Statement (Problem 316061) -/
 def MathDB_GoldbachConjecture : Prop :=
   ∀ n : ℕ, n > 2 → n % 2 = 0 → ∃ p q, Nat.Prime p ∧ Nat.Prime q ∧ p + q = n
 
