@@ -14,5 +14,5 @@ rev = "v4.32.0"
 
 [[require]]
 name = "lean4lean"
-git = "https://github.com/digama0/lean4lean.git"
-rev = "v4.32.0"
+git = "https://github.com"
+rev = "main"
