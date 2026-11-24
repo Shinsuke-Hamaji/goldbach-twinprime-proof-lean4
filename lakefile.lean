@@ -11,6 +11,6 @@ require mathlib from git
   "gh:leanprover-community/mathlib4.git" @ "v4.32.0"
 
 @[default_target]
-lean_lib «JSP000941» where
+lean_lib «JSP000008» where
   srcDir := "."
-  roots := #[`«JSP-000941»]
+  roots := #[`«JSP-000008»]
