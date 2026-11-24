@@ -67,7 +67,7 @@ jobs:
           gh repo clone leanprover/lean4export /tmp/lean4export-conleche -- --depth 1
           cp lean-toolchain /tmp/lean4export-conleche/
           lake --dir=/tmp/lean4export-conleche build
-          lake env /tmp/lean4export-conleche/.lake/build/bin/lean4export '«JSP000008»' > exported_env_jsp000008.ndjson
+          lake env /tmp/lean4export-conleche/.lake/build/bin/lean4export '«JSP-000008»' > exported_env_jsp000008.ndjson
           lake env /tmp/con-leche/.lake/build/bin/con-leche --jobs=2 exported_env_jsp000008.ndjson
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
