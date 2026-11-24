@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package «collatz-proof-lean4» where
+package «goldbach-twinprime-proof-lean4» where
   version := v!"0.1.0"
 
 require lean4lean from git
