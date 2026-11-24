@@ -46,4 +46,28 @@ jobs:
           lake --dir=/tmp/lean4export-nanoda build
           lake env /tmp/lean4export-nanoda/.lake/build/bin/lean4export '«JSP-000008»' > exported_env_jsp000008.ndjson
           echo '{"export_file_path": "exported_env_jsp000008.ndjson", "num_threads": 2, "permitted_axioms": ["propext", "Classical.choice", "Quot.sound", "Lean.trustCompiler", "Lean.ofReduceBool", "Lean.ofReduceNat"], "unpermitted_axiom_hard_error": false, "nat_extension": true, "string_extension": true}' > nanoda_config.json
-          /tmp/nanoda_lib/
+          /tmp/nanoda_lib/target/release/nanoda_bin nanoda_config.json
+
+      - name: Build JSP000008
+        run: lake build JSP000008
+
+      - name: Cache con-leche build
+        id: cache-con-leche
+        uses: actions/cache@v4
+        with:
+          path: /tmp/con-leche
+          key: con-leche-build-v1
+
+      - name: Build and verify with con-leche
+        run: |
+          if [ "${{ steps.cache-con-leche.outputs.cache-hit }}" != "true" ]; then
+            gh repo clone leanprover/con-leche /tmp/con-leche -- --depth 1
+            (cd /tmp/con-leche && lake build)
+          fi
+          gh repo clone leanprover/lean4export /tmp/lean4export-conleche -- --depth 1
+          cp lean-toolchain /tmp/lean4export-conleche/
+          (cd /tmp/lean4export-conleche && lake build)
+          lake env /tmp/lean4export-conleche/.lake/build/bin/lean4export '«JSP000008»' > exported_env_jsp000941.ndjson
+          /tmp/con-leche/.lake/build/bin/con-leche --jobs=2 exported_env_jsp000008.ndjson
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
