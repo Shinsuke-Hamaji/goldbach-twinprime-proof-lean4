@@ -1,11 +1,11 @@
-name = "collatz-proof-lean4"
+name = "goldbach-twinprime-proof-lean4"
 version = "0.1.0"
-defaultTargets = ["JSP000941"]
+defaultTargets = ["JSP000008"]
 
 [[lean_lib]]
-name = "JSP000941"
+name = "JSP000008"
 srcDir = "."
-roots = ["JSP-000941"]
+roots = ["JSP-000008"]
 
 [[require]]
 name = "mathlib"
