@@ -1,0 +1,49 @@
+name: Combined Kernel Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure git shortcut
+        run: git config --global url."https://github.com/".insteadOf "gh:"
+
+      - name: Install Elan and Lean 4
+        run: |
+          git clone --depth 1 gh:leanprover/elan.git /tmp/elan
+          sh /tmp/elan/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Generate lake-manifest.json and fetch Mathlib cache
+        run: |
+          lake update
+          lake exe cache get
+
+      - name: Build JSP-000008 (Standard C++ Kernel)
+        run: lake build JSP000008
+
+      - name: Run lean4lean (Independent Lean-in-Lean Kernel)
+        run: lake exe lean4lean --fresh '«JSP-000008»'
+
+      - name: Setup Rust and build nanoda (Independent Rust Kernel)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build and verify with nanoda
+        run: |
+          git clone gh:ammkrn/nanoda_lib.git /tmp/nanoda_lib
+          cargo build --release --manifest-path /tmp/nanoda_lib/Cargo.toml
+          git clone gh:leanprover/lean4export.git /tmp/lean4export-nanoda
+          cp lean-toolchain /tmp/lean4export-nanoda/
+          lake --dir=/tmp/lean4export-nanoda build
+          lake env /tmp/lean4export-nanoda/.lake/build/bin/lean4export '«JSP-000008»' > exported_env_jsp000008.ndjson
+          echo '{"export_file_path": "exported_env_jsp000008.ndjson", "num_threads": 2, "permitted_axioms": ["propext", "Classical.choice", "Quot.sound", "Lean.trustCompiler", "Lean.ofReduceBool", "Lean.ofReduceNat"], "unpermitted_axiom_hard_error": false, "nat_extension": true, "string_extension": true}' > nanoda_config.json
+          /tmp/nanoda_lib/
