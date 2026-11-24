@@ -5,7 +5,7 @@ defaultTargets = ["JSP000008"]
 [[lean_lib]]
 name = "JSP000008"
 srcDir = "."
-roots = ["JSP-000008"]
+roots = ["JSP000008"]
 
 [[require]]
 name = "mathlib"
@@ -14,5 +14,5 @@ rev = "v4.32.0"
 
 [[require]]
 name = "lean4lean"
-git = "https://github.com"
-rev = "main"
+git = "https://github.com/digama0/lean4lean.git"
+rev = "v4.32.0"
