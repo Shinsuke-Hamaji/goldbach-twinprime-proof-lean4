@@ -1,337 +1,296 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Odd Pair Sync Viewer - Full Integrated Edition</title>
+<title>Full Odd Space Viewer (1 ~ 2n-1): Primes (a) vs 1 & Odd Composites (b)</title>
 <style>
-body { font-family: sans-serif; background: #f5f7fb; margin: 0; padding: 15px; color: #333; font-size: 14px; }
-.container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px;
-box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-h1 { margin-top: 0; color: #111; font-size: 17px; border-bottom: 2px solid #eaeef5; padding-bottom: 10px; }
-.control-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;
-margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.control-item { display: flex; align-items: center; gap: 4px; }
-label { font-size: 11px; font-weight: bold; color: #475569; }
-select, input[type="number"] { padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: bold; }
-button { background: #0066cc; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
-button:hover { background: #0052a3; }
-.canvas-container { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px; display: flex; justify-content: center; }
-canvas { background: #fff; max-width: 100%; height: auto; }
+  body { font-family: sans-serif; background: #111; color: #eee; margin: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; align-items: center; }
+  .note { font-size: 12.5px; color: #bbb; margin: 0 0 12px 0; line-height: 1.5; }
+  label { font-size: 13px; }
+  input, select, button { background: #222; color: #fff; border: 1px solid #555; padding: 4px 8px; }
+  button { cursor: pointer; }
+  button:hover { background: #333; }
+  canvas { background: #1a1a1a; border: 1px solid #444; width: 100%; height: 520px; }
 </style>
 </head>
-
 <body>
-<div class="container">
-<h1>Odd Pair Sync Viewer (Integrated Edition with Dynamic Composite Filter)</h1>
-
-<div class="control-panel">
-<div class="control-item">
-<label>2n:</label>
-<input type="number" id="maxEven" value="2000" min="20" max="20000" step="2" style="width: 70px;">
+<h3>Full Odd Space Sync Viewer (Primes = a vs 1 & Odd Composites = b)</h3>
+<div class="controls">
+  <label>2n: <input type="number" id="twoN" value="200" step="2" min="6"></label>
+  <label>Y Scale: <input type="number" id="yScale" value="30" min="1"></label>
+  <label>C-Filter:
+    <select id="cFilter">
+      <option value="3">1 & 3-multiples (C3)</option>
+      <option value="5">1 & 3,5-multiples (C3..C5)</option>
+      <option value="7">1 & 3,5,7-multiples (C3..C7)</option>
+      <option value="all" selected>1 & All Odd Composites</option>
+    </select>
+  </label>
+  <label>Mode:
+    <select id="mode">
+      <option value="add" selected>Add (2 ~ 4n-2)</option>
+      <option value="sub">Sub (0 ~ 2n-2)</option>
+    </select>
+  </label>
+  <label>Items:
+    <select id="items">
+      <option value="all" selected>Cp' + Pp + Mp'</option>
+      <option value="hp_mp">Hp' + Mp'</option>
+      <option value="pp">Pp only (Pure Odd Prime Pairs)</option>
+    </select>
+  </label>
+  <label>Ref Lines:
+    <select id="refMode">
+      <option value="all" selected>All (a, b, Averages)</option>
+      <option value="avg">Averages only</option>
+      <option value="none">None</option>
+    </select>
+  </label>
+  <button onclick="render()">Render</button>
 </div>
-
-<div class="control-item">
-<label>Y Scale:</label>
-<input type="number" id="yScale" value="300" min="10" max="100000" step="10" style="width: 65px;">
-</div>
-
-<div class="control-item">
-<label>Diff:</label>
-<select id="diffVal">
-<option value="all">All</option>
-<option value="0">0</option>
-<option value="2">2</option>
-<option value="4">4</option>
-<option value="6">6</option>
-<option value="8">8</option>
-<option value="10">10</option>
-<option value="12">12</option>
-<option value="14">14</option>
-<option value="16">16</option>
-<option value="18">18</option>
-<option value="20">20</option>
-</select>
-</div>
-
-<div class="control-item">
-<label>C-Filter:</label>
-<select id="cFilter">
-<option value="3">3 only (C3)</option>
-<option value="5">3, 5 (C3, C5)</option>
-<option value="7">3, 5, 7 (C3..C7)</option>
-<option value="all" selected>All Composites</option>
-</select>
-</div>
-
-<div class="control-item">
-<label>Mode:</label>
-<select id="sumMode">
-<option value="add">Add (6 ~ 4n−6)</option>
-<option value="sub">Sub (0 ~ 2n−6)</option>
-</select>
-</div>
-
-<div class="control-item">
-<label>Items:</label>
-<select id="itemMode">
-<option value="all3">Cp + Pp + Mp</option>
-<option value="hpmp">Hp + Mp</option>
-<option value="cp">Cp only</option>
-<option value="pp">Pp only</option>
-<option value="mp">Mp only</option>
-</select>
-</div>
-
-<button onclick="runCalculation()">Render</button>
-</div>
-
-<div class="canvas-container">
-<canvas id="graphCanvas" width="810" height="420"></canvas>
-</div>
-</div>
+<p class="note">
+  <strong>Relation <code>a = 2Pp + Mp</code> (JSP-000008 / Reverse Symmetry):</strong>
+  In <code>1 ~ 2n - 1</code>, odd prime count <code>a</code> gets <code>2</code> per homogeneous odd-prime pair (<code>Pp</code>) and <code>1</code> per mixed pair (<code>Mp</code>, pairing an odd prime with <code>1</code> or an odd composite). Assigning <code>1</code> according to <code>2n - 1</code> so mixed pairs shift toward <code>Mp - 1</code> breaks reverse symmetry and prevents a <code>Pp = 0</code> balance (excluding prime <code>n</code> such as <code>2n = 6</code>, aligned with A002620 quarter-square asymmetry).
+</p>
+<canvas id="cv" width="1200" height="520"></canvas>
 
 <script>
-function runCalculation() {
-let maxEv = parseInt(document.getElementById('maxEven').value);
-if (maxEv % 2 !== 0) maxEv--;
-
-const mode = document.getElementById('sumMode').value;
-const diffValStr = document.getElementById('diffVal').value;
-const d = (diffValStr === "all" || diffValStr === "0") ? 0 : parseInt(diffValStr);
-const cFilter = document.getElementById('cFilter').value;
-
-// エラトステネスの篩による高速素数テーブル
-let maxCheck = maxEv * 2 + 100;
-let primeTable = new Uint8Array(maxCheck);
-primeTable.fill(1);
-primeTable[0] = primeTable[1] = 0;
-for (let p = 2; p * p < maxCheck; p++) {
-if (primeTable[p]) {
-for (let i = p * p; i < maxCheck; i += p) primeTable[i] = 0;
-}
+function isPrime(x) {
+  if (x < 2) return false;
+  if (x % 2 === 0) return x === 2;
+  for (let d = 3; d * d <= x; d += 2) if (x % d === 0) return false;
+  return true;
 }
 
-// C-Filter の動的適用を含む合成数判定
-function isTargetComposite(u) {
-if (primeTable[u]) return false; // 素数は対象外
-if (cFilter === "all") return true; // 全ての合成数を対象
-
-let maxPrimeFactor = parseInt(cFilter);
-if (maxPrimeFactor >= 3 && u % 3 === 0) return true;
-if (maxPrimeFactor >= 5 && u % 5 === 0) return true;
-if (maxPrimeFactor >= 7 && u % 7 === 0) return true;
-return false;
+// Returns true if x belongs to "Other (1 & Odd Composites)" -> group b
+// Returns false if x belongs to "Odd Primes" -> group a
+function isOtherOrCompositeByFilter(x, filter) {
+  if (x === 1) return true; // 1 is placed into "Other" (group b)
+  if (isPrime(x)) return false; // Odd prime -> group a
+  if (filter === 'all') return true;
+  const maxP = parseInt(filter, 10);
+  for (let p = 3; p <= maxP; p += 2) {
+    if (isPrime(p) && x % p === 0 && x > p) return true;
+  }
+  return false;
 }
 
-// Diff基準に基づく奇数 u の属性判定
-function checkType(u) {
-if (d === 0) {
-return isTargetComposite(u) ? 'C' : 'P';
-} else {
-let c1 = isTargetComposite(u);
-let c2 = isTargetComposite(u + d);
-if (c1 && c2) return 'C';
-if (!c1 && !c2) return 'P';
-return 'M';
+function render() {
+  const twoN = Math.max(6, parseInt(document.getElementById('twoN').value, 10) & ~1);
+  const yScale = Math.max(1, parseFloat(document.getElementById('yScale').value));
+  const filter = document.getElementById('cFilter').value;
+  const mode = document.getElementById('mode').value;
+  const items = document.getElementById('items').value;
+  const refMode = document.getElementById('refMode').value;
+
+  // Full odd space 1 ~ 2n - 1 (n elements)
+  // a = count of Odd Primes
+  // b = count of 1 & Odd Composites
+  const odds = [];
+  let a = 0; // Odd Primes
+  let b = 0; // 1 & Odd Composites
+  for (let k = 1; k <= twoN - 1; k += 2) {
+    const isB = isOtherOrCompositeByFilter(k, filter);
+    odds.push({ val: k, isB });
+    if (isB) b++; else a++;
+  }
+
+  const denom = a + b; // = n
+  const sqA = denom ? (a * a) / (2 * denom) : 0;
+  const sqB = denom ? (b * b) / (2 * denom) : 0;
+  const sqAB = denom ? (a * a + b * b) / (2 * denom) : 0;
+  const sq2ab = denom ? (a * b) / denom : 0;
+
+  const maxX = mode === 'add' ? 2 * twoN - 2 : twoN - 2;
+  const minX = mode === 'add' ? 2 : 0;
+  const bins = new Map();
+  for (let x = minX; x <= maxX; x += 2) bins.set(x, { cp: 0, pp: 0, mp: 0 });
+
+  for (let i = 0; i < odds.length; i++) {
+    for (let j = i; j < odds.length; j++) {
+      const key = mode === 'add' ? odds[i].val + odds[j].val : odds[j].val - odds[i].val;
+      const w = (i === j) ? 0.5 : 1.0;
+      const bin = bins.get(key);
+      if (odds[i].isB && odds[j].isB) bin.cp += w;      // (1/Comp, 1/Comp)
+      else if (!odds[i].isB && !odds[j].isB) bin.pp += w; // (Prime, Prime)
+      else bin.mp += w;                                   // (Prime, 1/Comp)
+    }
+  }
+
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
+
+  const pad = { top: 68, right: 30, bottom: 42, left: 55 };
+  const plotW = cv.width - pad.left - pad.right;
+  const plotH = cv.height - pad.top - pad.bottom;
+
+  const keys = Array.from(bins.keys());
+  const toX = (k) => pad.left + ((k - minX) / Math.max(1, maxX - minX)) * plotW;
+  const toY = (v) => pad.top + plotH - (v / yScale) * plotH;
+
+  // Grid & Axis Ticks
+  ctx.strokeStyle = '#2d2d2d';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#999';
+  ctx.font = '11px sans-serif';
+
+  const ySteps = 8;
+  for (let s = 0; s <= ySteps; s++) {
+    const val = (yScale / ySteps) * s;
+    const y = toY(val);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(cv.width - pad.right, y);
+    ctx.stroke();
+    ctx.textAlign = 'right';
+    ctx.fillText(val % 1 === 0 ? val.toString() : val.toFixed(1), pad.left - 8, y + 4);
+  }
+
+  const xStepCount = 10;
+  ctx.textAlign = 'center';
+  for (let i = 0; i < keys.length; i++) {
+    const interval = Math.max(1, Math.floor(keys.length / xStepCount));
+    if (i % interval === 0 || i === keys.length - 1) {
+      const k = keys[i];
+      const x = toX(k);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + plotH);
+      ctx.stroke();
+      ctx.fillText(k.toString(), x, pad.top + plotH + 18);
+    }
+  }
+
+  // Border
+  ctx.strokeStyle = '#555';
+  ctx.strokeRect(pad.left, pad.top, plotW, plotH);
+
+  // Center Line (at 2n in Add mode)
+  if (mode === 'add') {
+    const cx = toX(twoN);
+    ctx.strokeStyle = '#ff5555';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, pad.top);
+    ctx.lineTo(cx, pad.top + plotH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawLine(getter, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    keys.forEach((k, idx) => {
+      const x = toX(k), y = toY(getter(bins.get(k)));
+      if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  function drawDashedHLine(val, color, dashPattern = [6, 4]) {
+    const y = toY(val);
+    if (y < pad.top || y > pad.top + plotH) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash(dashPattern);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + plotW, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  const solidLegend = [];
+  if (items === 'all') {
+    drawLine(d => d.cp, '#ff66aa');
+    drawLine(d => d.pp, '#44ddff');
+    drawLine(d => d.mp, '#55ee77');
+    solidLegend.push(
+      { label: "Cp' (1 & Odd Comp Pairs)", color: '#ff66aa', dashed: null },
+      { label: 'Pp (Pure Odd Prime Pairs)', color: '#44ddff', dashed: null },
+      { label: "Mp' (Prime + 1/Comp Pairs)", color: '#55ee77', dashed: null }
+    );
+  } else if (items === 'hp_mp') {
+    drawLine(d => d.cp + d.pp, '#bb66ff');
+    drawLine(d => d.mp, '#55ee77');
+    solidLegend.push(
+      { label: "Hp' = Cp' + Pp (Homogeneous)", color: '#bb66ff', dashed: null },
+      { label: "Mp' (Mixed Pairs)", color: '#55ee77', dashed: null }
+    );
+  } else {
+    drawLine(d => d.pp, '#44ddff');
+    solidLegend.push(
+      { label: 'Pp (Pure Odd Prime Pairs)', color: '#44ddff', dashed: null }
+    );
+  }
+
+  if (mode === 'add') {
+    solidLegend.push({ label: `2n = ${twoN} (Center)`, color: '#ff5555', dashed: [5, 4] });
+  }
+
+  // Reference Lines & Legend
+  const refLegend = [];
+  if (refMode !== 'none') {
+    if (refMode === 'all') {
+      drawDashedHLine(a, '#38bdf8', [2, 3]);
+      drawDashedHLine(b, '#f43f5e', [2, 3]);
+      refLegend.push(
+        { label: `a (Odd Primes) = ${a}`, color: '#38bdf8', dashed: [2, 3] },
+        { label: `b (1 & Odd Comps) = ${b}`, color: '#f43f5e', dashed: [2, 3] }
+      );
+    }
+    drawDashedHLine(sqA, '#60a5fa', [6, 4]);
+    drawDashedHLine(sqB, '#fb7185', [6, 4]);
+    drawDashedHLine(sqAB, '#c084fc', [6, 4]);
+    drawDashedHLine(sq2ab, '#4ade80', [6, 4]);
+    refLegend.push(
+      { label: `a²/[2(a+b)] = ${sqA.toFixed(1)}`, color: '#60a5fa', dashed: [6, 4] },
+      { label: `b²/[2(a+b)] = ${sqB.toFixed(1)}`, color: '#fb7185', dashed: [6, 4] },
+      { label: `(a²+b²)/[2(a+b)] = ${sqAB.toFixed(1)}`, color: '#c084fc', dashed: [6, 4] },
+      { label: `ab/(a+b) = ${sq2ab.toFixed(1)}`, color: '#4ade80', dashed: [6, 4] }
+    );
+  }
+
+  function renderLegendRow(itemsList, yPos) {
+    let lx = pad.left;
+    ctx.font = 'bold 11.5px sans-serif';
+    ctx.textAlign = 'left';
+    itemsList.forEach(item => {
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = 2.2;
+      if (item.dashed) ctx.setLineDash(item.dashed);
+      else ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(lx, yPos - 4);
+      ctx.lineTo(lx + 22, yPos - 4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#eee';
+      ctx.fillText(item.label, lx + 27, yPos);
+      lx += ctx.measureText(item.label).width + 38;
+    });
+  }
+
+  renderLegendRow(solidLegend, 20);
+  if (refLegend.length > 0) {
+    renderLegendRow(refLegend, 44);
+  }
+
+  // Status (Top Right)
+  const infoText = `Total Odds n = ${denom} (a=${a} Primes, b=${b} 1&Comps) | Filter: ${filter} | Mode: ${mode}`;
+  ctx.fillStyle = '#aaa';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(infoText, cv.width - pad.right, 20);
 }
-}
 
-let ppHist = {}, ccHist = {}, mpHist = {}, hpHist = {};
-
-for (let k = 3; k <= maxEv - 3; k += 2) {
-let typeK = checkType(k);
-for (let m = k; m <= maxEv - 3; m += 2) {
-let typeM = checkType(m);
-let sum = (mode === "add") ? k + m : Math.abs(k - m);
-let weight = (k === m) ? 0.5 : 1.0;
-
-if (typeK === 'P' && typeM === 'P') {
-ppHist[sum] = (ppHist[sum] || 0) + weight;
-} else if (typeK === 'C' && typeM === 'C') {
-ccHist[sum] = (ccHist[sum] || 0) + weight;
-} else {
-mpHist[sum] = (mpHist[sum] || 0) + weight;
-}
-}
-}
-
-for (let s in ccHist) hpHist[s] = (hpHist[s] || 0) + ccHist[s];
-for (let s in ppHist) hpHist[s] = (hpHist[s] || 0) + (ppHist[s] || 0);
-
-let a = 0, b = 0;
-for (let k = 3; k <= maxEv - 3; k += 2) {
-let t = checkType(k);
-if (t === 'P') a++;
-else if (t === 'C') b++;
-}
-let denom = a + b;
-
-let sqA = denom ? (a * a) / (2 * denom) : 0;
-let sqB = denom ? (b * b) / (2 * denom) : 0;
-let sqAB = denom ? (a * a + b * b) / (2 * denom) : 0;
-let sq2ab = denom ? (2 * a * b) / (2 * denom) : 0;
-
-let nVal = maxEv / 2;
-let c3Base = (nVal >= 6) ? (nVal / 6 - 1) : 0;
-let cxBase = Math.max(0, sqB - c3Base);
-
-let minSum = (mode === "add") ? 6 : 0;
-let maxSum = (mode === "add") ? 2 * maxEv - 6 : maxEv - 6;
-
-let sums = [];
-for (let s = minSum; s <= maxSum; s += 2) sums.push(s);
-
-drawGraph(sums, ppHist, ccHist, mpHist, hpHist, sqA, sqB, sqAB, sq2ab, c3Base, cxBase, mode, cFilter);
-}
-
-function drawGraph(sums, ppHist, ccHist, mpHist, hpHist, sqA, sqB, sqAB, sq2ab, c3Base, cxBase, mode, cFilter) {
-const canvas = document.getElementById('graphCanvas');
-const ctx = canvas.getContext('2d');
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-const padding = { top: 55, right: 30, bottom: 40, left: 50 };
-const graphWidth = canvas.width - padding.left - padding.right;
-const graphHeight = canvas.height - padding.top - padding.bottom;
-
-let yScaleInput = parseFloat(document.getElementById('yScale').value);
-let yMax = (yScaleInput && yScaleInput > 0) ? yScaleInput : 300;
-
-function getX(v) {
-return padding.left + ((v - sums[0]) / (sums[sums.length - 1] - sums[0])) * graphWidth;
-}
-function getY(v) {
-return padding.top + graphHeight - (v / yMax) * graphHeight;
-}
-
-ctx.strokeStyle = '#e2e8f0';
-ctx.lineWidth = 1;
-let step = Math.ceil(yMax / 10);
-for (let y = 0; y <= yMax; y += step) {
-let yy = getY(y);
-ctx.beginPath();
-ctx.moveTo(padding.left, yy);
-ctx.lineTo(canvas.width - padding.right, yy);
-ctx.stroke();
-ctx.fillStyle = '#64748b';
-ctx.font = '10px sans-serif';
-ctx.fillText(y.toFixed(1), padding.left - 38, yy + 4);
-}
-
-let xLabelInterval = Math.ceil(sums.length / 10);
-for (let i = 0; i < sums.length; i++) {
-if (i % xLabelInterval === 0 || i === sums.length - 1) {
-let x = getX(sums[i]);
-ctx.fillStyle = '#64748b';
-ctx.font = '10px sans-serif';
-ctx.fillText(sums[i], x - 10, canvas.height - padding.bottom + 15);
-}
-}
-
-const itemMode = document.getElementById('itemMode').value;
-
-function drawLine(hist, color) {
-ctx.strokeStyle = color;
-ctx.lineWidth = 1.5;
-ctx.setLineDash([]);
-ctx.beginPath();
-ctx.moveTo(getX(sums[0]), getY(hist[sums[0]] || 0));
-for (let i = 1; i < sums.length; i++) {
-let dz = hist[sums[i]] || 0;
-ctx.lineTo(getX(sums[i]), getY(dz));
-}
-ctx.stroke();
-}
-
-if (itemMode === "all3") {
-drawLine(ccHist, '#FF00FF'); // Cp (マゼンタ)
-drawLine(ppHist, '#00CCFF'); // Pp (水色)
-drawLine(mpHist, '#006400'); // Mp (緑)
-}
-if (itemMode === "hpmp") {
-drawLine(hpHist, '#800080');
-drawLine(mpHist, '#006400');
-}
-if (itemMode === "cp") drawLine(ccHist, '#FF00FF');
-if (itemMode === "pp") drawLine(ppHist, '#00CCFF');
-if (itemMode === "mp") drawLine(mpHist, '#006400');
-
-function dashedLine(value, color) {
-ctx.strokeStyle = color;
-ctx.lineWidth = 2;
-ctx.setLineDash([6, 4]);
-ctx.beginPath();
-ctx.moveTo(getX(sums[0]), getY(value));
-ctx.lineTo(getX(sums[sums.length - 1]), getY(value));
-ctx.stroke();
-ctx.setLineDash([]);
-}
-
-dashedLine(sqA, '#0000FF');    // Pa (青)
-dashedLine(sqB, '#FF0000');    // Cp (赤)
-dashedLine(sqAB, '#AA00AA');   // Hp (紫)
-dashedLine(sq2ab, '#00AA00');  // Mp (緑)
-dashedLine(c3Base, '#D97706'); // C3 (橙)
-dashedLine(cxBase, '#8B0000'); // Cx = Cp - C3 (暗赤)
-
-const solidLegend = [
-    { label: 'Pp', color: '#00CCFF' },
-    { label: 'Cp', color: '#FF00FF' },
-    { label: 'Hp', color: '#800080' },
-    { label: 'Mp', color: '#006400' }
-];
-
-const dashedLegend = [
-{ label: 'a²/[2(a+b)]', color: '#0000FF' },
-{ label: 'b²/[2(a+b)]', color: '#FF0000' },
-{ label: '(a²+b²)/[2(a+b)]', color: '#AA00AA' },
-{ label: 'ab/[a+b]', color: '#00AA00' },
-{ label: 'C3 (n/6-1)', color: '#D97706' },
-{ label: 'Cx (Cp-C3)', color: '#8B0000' }
-];
-
-let lx = padding.left + 5;
-let ly = 5;
-
-solidLegend.forEach(item => {
-ctx.strokeStyle = item.color;
-ctx.lineWidth = 3;
-ctx.setLineDash([]);
-ctx.beginPath();
-ctx.moveTo(lx, ly);
-ctx.lineTo(lx + 25, ly);
-ctx.stroke();
-ctx.fillStyle = '#333';
-ctx.font = 'bold 10px sans-serif';
-ctx.fillText(item.label, lx + 30, ly + 4);
-lx += 110;
-});
-
-lx = padding.left + 5;
-ly = 25;
-
-dashedLegend.forEach(item => {
-ctx.strokeStyle = item.color;
-ctx.lineWidth = 3;
-ctx.setLineDash([6, 4]);
-ctx.beginPath();
-ctx.moveTo(lx, ly);
-ctx.lineTo(lx + 25, ly);
-ctx.stroke();
-ctx.setLineDash([]);
-ctx.fillStyle = '#333';
-ctx.font = 'bold 10px sans-serif';
-ctx.fillText(item.label, lx + 30, ly + 4);
-lx += 115;
-});
-
-let currentDiff = document.getElementById('diffVal').value;
-ctx.fillStyle = '#111';
-ctx.font = 'bold 11px sans-serif';
-ctx.fillText(`C-Filter: ${cFilter} | Diff: ${currentDiff} | Y Scale: ${yMax}`, canvas.width / 2 - 160, canvas.height - 5);
-}
-
-window.onload = runCalculation;
+window.onload = render;
 </script>
-
 </body>
 </html>
